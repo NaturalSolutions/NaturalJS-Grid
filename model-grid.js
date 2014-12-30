@@ -212,7 +212,8 @@ define([
             this.paginator = new Backgrid.Extension.Paginator({
                 collection: this.collection
             });
-            return this.paginator.render().el
+            //return this.paginator.render().el;
+            return "";
         },
 
         eventHandler: function () {
