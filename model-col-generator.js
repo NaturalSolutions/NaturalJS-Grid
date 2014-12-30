@@ -2,12 +2,9 @@ define([
     'jquery',
     'underscore',
     'backbone',
-    'config',
     'backgrid',
     'backgridSelect_all',
-
-
-], function($, _, Backbone, config, Backgrid, BGSA){
+], function($, _, Backbone, Backgrid, BGSA){
     'use strict';
     return Backbone.Model.extend({
 

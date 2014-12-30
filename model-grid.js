@@ -2,14 +2,13 @@ define([
     'jquery',
     'underscore',
     'backbone',
-    'config',
     'radio',
     'backgrid',
     'backbone.paginator',
     'backgrid.paginator',
-    'grid/model-col-generator',
+    './model-col-generator',
 
-], function($, _, Backbone, config, Radio, Backgrid, PageColl, Paginator, colGene){
+], function($, _, Backbone, Radio, Backgrid, PageColl, Paginator, colGene){
     'use strict';
     return Backbone.Model.extend({
 
