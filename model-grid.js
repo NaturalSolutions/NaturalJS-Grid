@@ -29,6 +29,7 @@ define([
         coll: false,       
 
         initialize: function(options){
+            this.name = options.name || 'default';
             this.channel= options.channel;
             this.radio= Radio.channel(this.channel);
 
@@ -42,7 +43,7 @@ define([
             if (options.columns) {
                 this.columns=options.columns;        
             }else {
-                this.colGene = new colGene({url : this.url + 'getFields', paginable:this.pagingServerSide, checkedColl: options.checkedColl });
+                this.colGene = new colGene({url : this.url + 'getFields?name='+this.name, paginable:this.pagingServerSide, checkedColl: options.checkedColl });
                 this.columns = this.colGene.columns ;
             }
 
@@ -108,13 +109,12 @@ define([
             var ctx = this;
             var PageCollection = PageColl.extend({
                 sortCriteria: {},
-                url: this.url+'search',
+                url: this.url+'search?name='+this.name,
                 mode: 'server',
                 state:{
                     pageSize: this.pageSize
                 },
                 queryParams: {
-                    
                     offset: function() {return (this.state.currentPage - 1) * this.state.pageSize;},
                     criteria: function() {
                         
@@ -127,7 +127,7 @@ define([
                         return JSON.stringify(criteria);},
                 },
                 fetch: function(options) {
-                    var params= {
+                    var params = {
                         'page' : this.state.currentPage,
                         'per_page' : this.state.pageSize,
                         'offset': this.queryParams.offset.call(this),
@@ -151,14 +151,13 @@ define([
         
         initCollectionPaginableClient:function(){
             var PageCollection = PageColl.extend({
-                url: this.url+'search',
+                url: this.url+'search?name='+this.name,
                 mode: 'client',
                 state:{
                     pageSize: this.pageSize
                 },
                 queryParams: {
-                    order: function(){
-                    },
+                    order: function(){},
                     criteria: function() {
                         return JSON.stringify(this.searchCriteria);
                     },
@@ -170,10 +169,9 @@ define([
 
         
         initCollectionNotPaginable:function(){
-            this.collection = new Backbone.Collection();
-            this.collection.url=this.url+'search';
-
-            
+            this.collection = new Backbone.Collection.extend({
+                url: this.url+'search?name='+this.name,
+            });
         },
         
         
