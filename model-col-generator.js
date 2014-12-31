@@ -3,7 +3,7 @@ define([
     'underscore',
     'backbone',
     'backgrid',
-    'backgridSelect_all',
+    'backgrid-select-all',
 ], function($, _, Backbone, Backgrid, BGSA){
     'use strict';
     return Backbone.Model.extend({
