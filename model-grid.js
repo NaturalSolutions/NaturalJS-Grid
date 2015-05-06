@@ -16,7 +16,7 @@ define([
         =            Grid module            =
         ===================================*/
         events: {
-           // 'click table.backgrid th input': 'checkSelectAll',
+            // 'click table.backgrid th input': 'checkSelectAll',
         },
 
         init: false,
@@ -44,7 +44,7 @@ define([
                             model: this.model,
                             //parent: options.rowClicked.parent
                         });
-                        
+
                     }
                 });
                 Backbone.on("rowclicked", function (options) {
@@ -61,7 +61,7 @@ define([
 
             }
 
-            
+
 
 
             this.name = options.name || 'default';
@@ -90,15 +90,7 @@ define([
                 this.coll = true;
             }
             else {
-
-                if (this.pagingServerSide) {
-                    this.initCollectionPaginable();
-                } else if (this.pageSize) {
-                    this.initCollectionPaginableClient();
-                }
-                else {
-                    this.initCollectionNotPaginable();
-                }
+                this.initCollectionFromServer();
             }
             if (this.pagingServerSide) {//&& options.columns) {
                 this.setHeaderCell();
@@ -145,7 +137,16 @@ define([
             };
         },
 
-        
+        initCollectionFromServer: function () {
+            if (this.pagingServerSide) {
+                this.initCollectionPaginable();
+            } else if (this.pageSize) {
+                this.initCollectionPaginableClient();
+            }
+            else {
+                this.initCollectionNotPaginable();
+            }
+        },
 
 
         initCollectionPaginable: function () {
@@ -398,11 +399,18 @@ define([
             }
         },
 
-        // Client Grid Management
-        filter: function (coll) {    
-            this.grid.collection = coll;
-            this.grid.body.collection = coll;
-            this.grid.body.refresh();
+
+        filter: function (args) {
+            if (this.coll) {
+                // Client Grid Management
+                this.grid.collection = args;
+                this.grid.body.collection = args;
+                this.grid.body.refresh();
+            }
+            else {
+                // Server Grid Management
+                this.update({ filters: args });
+            }
         },
 
 
