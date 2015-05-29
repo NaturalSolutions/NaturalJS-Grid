@@ -63,7 +63,7 @@ define([
 
 
 
-
+            this.sortCriteria = options.sortCriteria || {};
             this.name = options.name || 'default';
             this.channel = options.channel;
             this.radio = Radio.channel(this.channel);
@@ -106,6 +106,7 @@ define([
             var hc = Backgrid.HeaderCell.extend({
                 onClick: function (e) {
                     e.preventDefault();
+                    
                     var that = this;
                     var column = this.column;
                     var collection = this.collection;
@@ -152,7 +153,7 @@ define([
         initCollectionPaginable: function () {
             var ctx = this;
             var PageCollection = PageColl.extend({
-                sortCriteria: {},
+                sortCriteria: ctx.sortCriteria,
                 url: this.url + 'search?name=' + this.name,
                 mode: 'server',
                 state: {
@@ -173,6 +174,7 @@ define([
                     },
                 },
                 fetch: function (options) {
+                    ctx.fetchingCollection(options);
                     var params = {
                         'page': this.state.currentPage,
                         'per_page': this.state.pageSize,
@@ -182,14 +184,17 @@ define([
                     };
                     if (ctx.init) {
                         ctx.updateMap(params);
+                        
                     }
                     ctx.init = true;
 
                     PageColl.prototype.fetch.call(this, options);
                 }
+                
             });
 
             this.collection = new PageCollection();
+            
             this.listenTo(this.collection, "reset", this.affectTotalRecords);
         },
 
@@ -233,34 +238,44 @@ define([
             });
             if (!this.coll) {
                 this.collection.searchCriteria = this.filterCriteria;
-                this.fetchCollection();
+                this.fetchCollection({ init: true });
             }
-
+            
             this.collection.on('change', this.collectionFetched);
         },
 
-        collectionFetched: function () {
+        collectionFetched: function (options) {
+            
             this.affectTotalRecords();
+            if (options.init && !jQuery.isEmptyObject(this.sortCriteria)) {
+                console.log($('th'));
+
+                for (var key in this.sortCriteria) {
+                    $('th.' + key).addClass(this.sortCriteria[key]);
+                }
+
+            }
         },
 
         update: function (args) {
             if (this.pageSize) {
                 this.grid.collection.state.currentPage = 1;
                 this.grid.collection.searchCriteria = args.filters;
-                this.fetchCollection();
+                this.fetchCollection({ init: false });
 
             }
             else {
                 this.filterCriteria = JSON.stringify(args.filters);
-                this.fetchCollection();
+                this.fetchCollection({ init: false });
             }
         },
-        fetchCollection: function () {
+        fetchCollection: function (options) {
+            var _this = this;
             if (this.filterCriteria != null) {
-                this.grid.collection.fetch({ reset: true, data: { 'criteria': this.filterCriteria } });
+                this.grid.collection.fetch({ reset: true, data: { 'criteria': this.filterCriteria }, success: function () { _this.collectionFetched(options); } });
             }
             else {
-                this.grid.collection.fetch({ reset: true });
+                this.grid.collection.fetch({ reset: true, success: function () { _this.collectionFetched(options); } });
             }
         },
         displayGrid: function () {
@@ -274,6 +289,7 @@ define([
             });
             var resultat = this.paginator.render().el;
 
+
             return resultat;
         },
 
@@ -281,6 +297,7 @@ define([
             if (this.totalElement != null) {
                 $('#' + this.totalElement).html(this.paginator.collection.state.totalRecords);
             }
+            
         },
 
         setTotal: function () {
@@ -300,7 +317,15 @@ define([
             })
         },
 
+        fetchingCollection: function (options) {
+            // to be extended
+            
+        },
 
+        Collection: function (options) {
+            // to be extended
+            
+        },
 
         action: function (action, params) {
             switch (action) {
