@@ -187,7 +187,9 @@ define([
                         
                     }
                     ctx.init = true;
-
+                    options['success'] = function () {
+                        ctx.collectionFetched();
+                    };
                     PageColl.prototype.fetch.call(this, options);
                 }
                 
@@ -241,13 +243,13 @@ define([
                 this.fetchCollection({ init: true });
             }
             
-            this.collection.on('change', this.collectionFetched);
+            //this.collection.on('change', this.collectionFetched);
         },
 
         collectionFetched: function (options) {
             
             this.affectTotalRecords();
-            if (options.init && !jQuery.isEmptyObject(this.sortCriteria)) {
+            if ( !jQuery.isEmptyObject(this.sortCriteria)) {
                 console.log($('th'));
 
                 for (var key in this.sortCriteria) {
@@ -255,8 +257,12 @@ define([
                 }
 
             }
+            this.CollectionLoaded(options);
         },
-
+        CollectionLoaded: function (options) {
+            //console.log('ColeectionLoaded');
+            
+        },
         update: function (args) {
             if (this.pageSize) {
                 this.grid.collection.state.currentPage = 1;
