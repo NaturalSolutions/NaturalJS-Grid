@@ -261,11 +261,13 @@ define([
 
             }
             var $table = this.grid.$el;
+            /*
             $table.floatThead({
                 scrollContainer: function ($table) {
                     return $table.closest('.wrapper');
                 }
             });
+            */
             this.CollectionLoaded(options);
         },
         CollectionLoaded: function (options) {
