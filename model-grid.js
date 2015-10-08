@@ -7,7 +7,8 @@ define([
     'backbone-paginator',
     'backgrid-paginator',
     './model-col-generator',
-], function ($, _, Backbone, Radio, Backgrid, PageColl, Paginator, colGene) {
+    'moment'
+], function ($, _, Backbone, Radio, Backgrid, PageColl, Paginator, colGene,moment) {
     'use strict';
     return Backbone.Model.extend({
 
@@ -15,10 +16,7 @@ define([
         /*===================================
         =            Grid module            =
         ===================================*/
-        events: {
-            // 'click table.backgrid th input': 'checkSelectAll',
-        },
-
+        
         init: false,
         pagingServerSide: true,
         coll: false,
@@ -32,7 +30,7 @@ define([
                 this.com = options.com;
                 this.com.addModule(this);
             }
-
+            this.onceFetched = options.onceFetched;
             if (options.rowClicked) {
                 var clickFunction = options.rowClicked.clickFunction
                 this.RowType = Backgrid.Row.extend({
@@ -40,7 +38,7 @@ define([
                         "click": "onClick"
                     },
                     onClick: function () {
-                        _this.interaction('rowclicked', {
+                        _this.interaction('rowClicked', {
                             model: this.model,
                             //parent: options.rowClicked.parent
                         });
@@ -61,17 +59,17 @@ define([
 
             }
 
-
+            this.searchPrefix = options.searchPrefix || '';
 
             this.sortCriteria = options.sortCriteria || {};
             this.name = options.name || 'default';
-            this.channel = options.channel;
-            this.radio = Radio.channel(this.channel);
+            //this.channel = options.channel;
+            //this.radio = Radio.channel(this.channel);
 
             if (options.totalElement) {
                 this.totalElement = options.totalElement;
             }
-            this.radio.comply(this.channel + ':grid:update', this.update, this);
+            //this.radio.comply(this.channel + ':grid:update', this.update, this);
 
             this.url = options.url;
             this.pageSize = options.pageSize;
@@ -154,7 +152,7 @@ define([
             var ctx = this;
             var PageCollection = PageColl.extend({
                 sortCriteria: ctx.sortCriteria,
-                url: this.url + 'search?name=' + this.name,
+                url: this.url + ctx.searchPrefix + '?name=' + this.name,
                 mode: 'server',
                 state: {
                     pageSize: this.pageSize
@@ -188,6 +186,9 @@ define([
                     }
                     ctx.init = true;
                     options['success'] = function () {
+                        if (ctx.onceFetched) {
+                            ctx.onceFetched(params);
+                        }
                         ctx.collectionFetched();
                     };
                     PageColl.prototype.fetch.call(this, options);
@@ -205,8 +206,9 @@ define([
         },
 
         initCollectionPaginableClient: function () {
+            var _this = this;
             var PageCollection = PageColl.extend({
-                url: this.url + 'search?name=' + this.name,
+                url: this.url + this.sear + _this.searchPrefix +  '?name=' + this.name,
                 mode: 'client',
                 state: {
                     pageSize: this.pageSize
@@ -224,8 +226,9 @@ define([
 
 
         initCollectionNotPaginable: function () {
+            _this = this;
             this.collection = new Backbone.Collection.extend({
-                url: this.url + 'search?name=' + this.name,
+                url: this.url + _this.searchPrefix +  '?name=' + this.name,
             });
         },
 
@@ -250,13 +253,19 @@ define([
             
             this.affectTotalRecords();
             if ( !jQuery.isEmptyObject(this.sortCriteria)) {
-                console.log($('th'));
+                //console.log($('th'));
 
                 for (var key in this.sortCriteria) {
                     $('th.' + key).addClass(this.sortCriteria[key]);
                 }
 
             }
+            var $table = this.grid.$el;
+            $table.floatThead({
+                scrollContainer: function ($table) {
+                    return $table.closest('.wrapper');
+                }
+            });
             this.CollectionLoaded(options);
         },
         CollectionLoaded: function (options) {
@@ -350,7 +359,7 @@ define([
                 case 'filter':
                     this.filter(params);
                     break;
-                case 'rowclicked':
+                case 'rowClicked':
                     // Rien à faire
                     break;
                 default:
