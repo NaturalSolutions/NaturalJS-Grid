@@ -30,6 +30,7 @@ define([
                 this.com = options.com;
                 this.com.addModule(this);
             }
+            this.RowClickedInfo = options.rowClicked;
             this.onceFetched = options.onceFetched;
             if (options.rowClicked) {
                 var clickFunction = options.rowClicked.clickFunction
@@ -180,10 +181,6 @@ define([
                         'order_by': this.queryParams.order_by.call(this),
                         'criteria': this.queryParams.criteria.call(this),
                     };
-                    if (ctx.init) {
-                        ctx.updateMap(params);
-                        
-                    }
                     ctx.init = true;
                     options['success'] = function () {
                         if (ctx.onceFetched) {
@@ -201,9 +198,7 @@ define([
             this.listenTo(this.collection, "reset", this.affectTotalRecords);
         },
 
-        updateMap: function (params) {
-            this.radio.command(this.channel + ':map:update', { params: params });
-        },
+        
 
         initCollectionPaginableClient: function () {
             var _this = this;
@@ -362,7 +357,7 @@ define([
                     this.filter(params);
                     break;
                 case 'rowClicked':
-                    // Rien à faire
+                    this.RowClickedInfo.clickFunction(params,this.RowClickedInfo.parent);
                     break;
                 default:
                     console.warn('verify the action name');
