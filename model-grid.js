@@ -35,10 +35,10 @@
         var _ = require('underscore');
         var Backbone = require('backbone');
         var Backgrid = require('backgrid');
-        var PageColl = require('backbone-paginator');
+        var PageColl = require('backbone.paginator');
         var Paginator = require('backgrid-paginator');
         var colGene = require('./model-col-generator');
-        factory(root, exports, $, _, Backbone, Backgrid, PageColl, Paginator, colGene);
+        module.exports = factory(root, exports, $, _, Backbone, Backgrid, PageColl, Paginator, colGene);
 
         // Finally, as a browser global.
     } else {
@@ -354,7 +354,7 @@
         },
 
         affectTotalRecords: function () {
-            if (this.totalElement != null) {
+            if (this.totalElement != null && this.paginator) {
                 $('#' + this.totalElement).html(this.paginator.collection.state.totalRecords);
             }
 
