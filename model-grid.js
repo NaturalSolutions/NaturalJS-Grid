@@ -25,7 +25,7 @@
         // Export global even in AMD case in case this script is loaded with
         // others that may still expect a global Backbone.
         var Retour = factory(root, exports, $, _, Backbone, Backgrid, PageColl, Paginator, colGene);
-        console.log(Retour);
+        //console.log(Retour);
         return Retour;
     });
 
@@ -423,11 +423,11 @@
 
 
 
-        interaction: function (action, id) {
+        interaction: function (action, params) {
             if (this.com) {
-                this.com.action(action, id);
+                this.com.action(action, params);
             } else {
-                this.action(action, id);
+                this.action(action, params);
             }
         },
 
