@@ -33,7 +33,7 @@
         var Backbone = require('backbone');
         var Backgrid = require('backgrid');
         var BGSA = require('backgrid-select-all');
-        factory(root, exports, $, _, Backbone, Backgrid, BGSA);
+        module.exports = factory(root, exports, $, _, Backbone, Backgrid, BGSA);
 
         // Finally, as a browser global.
     } else {
