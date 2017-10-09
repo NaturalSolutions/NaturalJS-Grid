@@ -1,22 +1,61 @@
-define([
+/*define([
     'jquery',
     'underscore',
     'backbone',
-    'backbone.radio',
     'backgrid',
     'backbone-paginator',
     'backgrid-paginator',
     './model-col-generator',
-    'moment'
-], function ($, _, Backbone, Radio, Backgrid, PageColl, Paginator, colGene,moment) {
+],
+*/
+
+(function (root, factory) {
+
+    // Set up Backbone appropriately for the environment. Start with AMD.
+    if (typeof define === 'function' && define.amd) {
+        console.log('amd');
+        define(['jquery',
+        'underscore',
+        'backbone',
+        'backgrid',
+        'backbone-paginator',
+        'backgrid-paginator',
+        './model-col-generator', ],
+        function ($, _, Backbone, Backgrid, PageColl, Paginator, colGene, exports) {
+        // Export global even in AMD case in case this script is loaded with
+        // others that may still expect a global Backbone.
+        var Retour = factory(root, exports, $, _, Backbone, Backgrid, PageColl, Paginator, colGene);
+        //console.log(Retour);
+        return Retour;
+    });
+
+        // Next for Node.js or CommonJS. jQuery may not be needed as a module.
+    } else if (typeof exports !== 'undefined') {
+        var $ = require('jquery');
+        var _ = require('underscore');
+        var Backbone = require('backbone');
+        var Backgrid = require('backgrid');
+        var PageColl = require('backbone.paginator');
+        var Paginator = require('backgrid-paginator');
+        var colGene = require('./model-col-generator');
+        module.exports = factory(root, exports, $, _, Backbone, Backgrid, PageColl, Paginator, colGene);
+
+        // Finally, as a browser global.
+    } else {
+        //TODO
+        //root.Backbone = factory(root, {}, root._, (root.jQuery || root.Zepto || root.ender || root.$));
+    }
+
+}
+(this, function (root, NsGrid, $, _, Backbone, Backgrid, PageColl, Paginator, colGene) {
     'use strict';
-    return Backbone.Model.extend({
+    NsGrid = Backbone.Model.extend({
 
 
         /*===================================
         =            Grid module            =
         ===================================*/
-        
+
         init: false,
         pagingServerSide: true,
         coll: false,
@@ -114,7 +153,7 @@ define([
             var hc = Backgrid.HeaderCell.extend({
                 onClick: function (e) {
                     e.preventDefault();
-                    
+
                     var that = this;
                     var column = this.column;
                     var collection = this.collection;
@@ -199,20 +238,20 @@ define([
                     };
                     PageColl.prototype.fetch.call(this, options);
                 }
-                
+
             });
 
             this.collection = new PageCollection();
-            
+
             this.listenTo(this.collection, "reset", this.affectTotalRecords);
         },
 
-        
+
 
         initCollectionPaginableClient: function () {
             var _this = this;
             var PageCollection = PageColl.extend({
-                url: this.url + this.sear + _this.searchPrefix +  '?name=' + this.name,
+                url: this.url + this.sear + _this.searchPrefix + '?name=' + this.name,
                 mode: 'client',
                 state: {
                     pageSize: this.pageSize
@@ -232,7 +271,7 @@ define([
         initCollectionNotPaginable: function () {
             _this = this;
             this.collection = new Backbone.Collection.extend({
-                url: this.url + _this.searchPrefix +  '?name=' + this.name,
+                url: this.url + _this.searchPrefix + '?name=' + this.name,
             });
         },
 
@@ -249,14 +288,14 @@ define([
                 this.collection.searchCriteria = this.filterCriteria;
                 this.fetchCollection({ init: true });
             }
-            
+
             //this.collection.on('change', this.collectionFetched);
         },
 
         collectionFetched: function (options) {
-            
+
             this.affectTotalRecords();
-            if ( !jQuery.isEmptyObject(this.sortCriteria)) {
+            if (!jQuery.isEmptyObject(this.sortCriteria)) {
                 //console.log($('th'));
 
                 for (var key in this.sortCriteria) {
@@ -276,7 +315,7 @@ define([
         },
         CollectionLoaded: function (options) {
             //console.log('ColeectionLoaded');
-            
+
         },
         update: function (args) {
             if (this.pageSize) {
@@ -315,10 +354,10 @@ define([
         },
 
         affectTotalRecords: function () {
-            if (this.totalElement != null) {
+            if (this.totalElement != null && this.paginator) {
                 $('#' + this.totalElement).html(this.paginator.collection.state.totalRecords);
             }
-            
+
         },
 
         setTotal: function () {
@@ -340,12 +379,12 @@ define([
 
         fetchingCollection: function (options) {
             // to be extended
-            
+
         },
 
         Collection: function (options) {
             // to be extended
-            
+
         },
 
         action: function (action, params) {
@@ -384,11 +423,11 @@ define([
 
 
 
-        interaction: function (action, id) {
+        interaction: function (action, params) {
             if (this.com) {
-                this.com.action(action, id);
+                this.com.action(action, params);
             } else {
-                this.action(action, id);
+                this.action(action, params);
             }
         },
 
@@ -465,8 +504,9 @@ define([
                 // Server Grid Management
                 this.update({ filters: args });
             }
-        },
-
-
+        }
     });
-});
+    return NsGrid;
+
+}));
+
