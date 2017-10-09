@@ -31,15 +31,24 @@ define([
                 this.com.addModule(this);
             }
             this.RowClickedInfo = options.rowClicked;
+            this.rowDblClickedInfo = options.rowDblClicked;
             this.onceFetched = options.onceFetched;
             if (options.rowClicked) {
                 var clickFunction = options.rowClicked.clickFunction
                 this.RowType = Backgrid.Row.extend({
                     events: {
-                        "click": "onClick"
+                        "click": "onClick",
+                        'dblclick': 'onDblClicked',
                     },
                     onClick: function () {
                         _this.interaction('rowClicked', {
+                            model: this.model,
+                            //parent: options.rowClicked.parent
+                        });
+
+                    },
+                    onDblClicked: function () {
+                        _this.interaction('rowDblClicked', {
                             model: this.model,
                             //parent: options.rowClicked.parent
                         });
@@ -357,7 +366,15 @@ define([
                     this.filter(params);
                     break;
                 case 'rowClicked':
-                    this.RowClickedInfo.clickFunction(params,this.RowClickedInfo.parent);
+                    if (this.RowClickedInfo) {
+                        this.RowClickedInfo.clickFunction(params, this.RowClickedInfo.parent);
+                    }
+                    break;
+                case 'rowDblClicked':
+                    if (this.rowDblClickedInfo) {
+                        console.log('*************DOUBLE CLICK ave info************', this.rowDblClickedInfo);
+                        this.rowDblClickedInfo.clickFunction(params, this.rowDblClickedInfo.parent);
+                    }
                     break;
                 default:
                     console.warn('verify the action name');
